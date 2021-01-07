@@ -1,17 +1,17 @@
 #ifndef _ROBOT_H_
 #define _ROBOT_H_
 
-#include "motor.h"
-#include "ultrasonicsensor.h"
+#include "drv8835.h"
+#include "sr04.h"
 
 
 namespace wall3 {
 
 class Robot {
-    Motor<8, 5> rightMotor;
-    Motor<7, 6, -1> leftMotor;
+    DRV8835<8, 5> rightMotor;
+    DRV8835<7, 6, -1> leftMotor;
 
-    UltrasonicSensor<> ultrasonicSensor;
+    SR04<> ultrasonicSensor;
 
 public:
     void setSpeed(int16_t, int16_t) noexcept;

@@ -8,21 +8,21 @@ namespace wall3
 {
 
 template <int PinTrig = 13, int PinEcho = 12>
-class UltrasonicSensor
+class SR04
 {
 public:
-    UltrasonicSensor() noexcept;
+    SR04() noexcept;
     uint16_t ping() const noexcept;
 };
 
 template <int PinTrig, int PinEcho>
-UltrasonicSensor<PinTrig, PinEcho>::UltrasonicSensor() noexcept {
+SR04<PinTrig, PinEcho>::SR04() noexcept {
     pinMode(PinEcho, INPUT);
     pinMode(PinTrig, OUTPUT);
 }
 
 template <int PinTrig, int PinEcho>
-uint16_t UltrasonicSensor<PinTrig, PinEcho>::ping() const noexcept
+uint16_t SR04<PinTrig, PinEcho>::ping() const noexcept
 {
     digitalWrite(PinTrig, LOW);
     delayMicroseconds(2);

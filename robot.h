@@ -15,8 +15,8 @@ class Robot {
     SR04<> ultrasonicSensor;
 
     ITR20001<2> leftInfrared;
-    ITR20001<2>  middleInfrared;
-    ITR20001<2> rightInfrared;
+    ITR20001<1> middleInfrared;
+    ITR20001<0> rightInfrared;
 public:
     void setSpeed(int16_t, int16_t) noexcept;
     uint16_t ping() const noexcept;

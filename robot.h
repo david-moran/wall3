@@ -3,6 +3,7 @@
 
 #include "drv8835.h"
 #include "sr04.h"
+#include "itr20001.h"
 
 
 namespace wall3 {
@@ -13,6 +14,9 @@ class Robot {
 
     SR04<> ultrasonicSensor;
 
+    ITR20001<2> leftInfrared;
+    ITR20001<2>  middleInfrared;
+    ITR20001<2> rightInfrared;
 public:
     void setSpeed(int16_t, int16_t) noexcept;
     uint16_t ping() const noexcept;

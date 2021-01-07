@@ -1,5 +1,5 @@
-#ifndef _ULTRASONIC_H_
-#define _ULTRASONIC_H_
+#ifndef _SR04_H_
+#define _SR04_H_
 
 #include <Arduino.h>
 #include <stdint.h>
@@ -7,7 +7,7 @@
 namespace wall3
 {
 
-template <int PinTrig = 13, int PinEcho = 12>
+template <int TrigPin = 13, int EchoPin = 12>
 class SR04
 {
 public:
@@ -15,25 +15,25 @@ public:
     uint16_t ping() const noexcept;
 };
 
-template <int PinTrig, int PinEcho>
-SR04<PinTrig, PinEcho>::SR04() noexcept {
-    pinMode(PinEcho, INPUT);
-    pinMode(PinTrig, OUTPUT);
+template <int TrigPin, int EchoPin>
+SR04<TrigPin, EchoPin>::SR04() noexcept {
+    pinMode(EchoPin, INPUT);
+    pinMode(TrigPin, OUTPUT);
 }
 
-template <int PinTrig, int PinEcho>
-uint16_t SR04<PinTrig, PinEcho>::ping() const noexcept
+template <int TrigPin, int EchoPin>
+uint16_t SR04<TrigPin, EchoPin>::ping() const noexcept
 {
-    digitalWrite(PinTrig, LOW);
+    digitalWrite(TrigPin, LOW);
     delayMicroseconds(2);
 
-    digitalWrite(PinTrig, HIGH);
+    digitalWrite(TrigPin, HIGH);
     delayMicroseconds(10);
-    digitalWrite(PinTrig, LOW);
+    digitalWrite(TrigPin, LOW);
 
-    return pulseIn(PinEcho, HIGH) / 58;
+    return pulseIn(EchoPin, HIGH) / 58;
 }
 
 }
 
-#endif // _ULTRASONIC_H_
+#endif // _SR04_H_

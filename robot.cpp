@@ -12,4 +12,12 @@ uint16_t Robot::ping() const noexcept {
     return ultrasonicSensor.ping();
 }
 
+void Robot::setup() noexcept {
+    servo.setup();
+}
+
+void Robot::rotateServo(int angle) noexcept {
+    servo.rotate(angle);
+}
+
 }

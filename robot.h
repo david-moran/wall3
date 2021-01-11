@@ -5,10 +5,15 @@
 #include "sr04.h"
 #include "itr20001.h"
 #include "wservo.h"
+#include "wmpu6050.h"
+#include "pid.h"
 
 namespace wall3 {
 
-class Robot {
+struct Robot {
+    PID rightMotorPID;
+    PID leftMotorPID;
+
     DRV8835<8, 5> rightMotor;
     DRV8835<7, 6, -1> leftMotor;
 
@@ -20,11 +25,13 @@ class Robot {
 
     WServo<10> servo;
 
+    WMPU6050<> mpu;
+
 public:
     void setup() noexcept;
-    void setSpeed(int16_t, int16_t) noexcept;
-    uint16_t ping() const noexcept;
-    void rotateServo(int angle) noexcept;
+    void loop() noexcept;
+
+    bool forwardUntilObstacle(uint16_t speed);
 };
 
 }

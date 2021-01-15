@@ -10,28 +10,54 @@
 
 namespace wall3 {
 
+
+enum class StateID {
+    STOPPED,
+    FORWARD,
+    TURNING
+};
+
+struct State {
+    StateID stateID;
+
+    struct Desired {
+        int16_t speed;
+        float gyro;
+        float turningRate;
+    } desired;
+};
+
 struct Robot {
-    PID rightMotorPID;
-    PID leftMotorPID;
-
-    DRV8835<8, 5> rightMotor;
-    DRV8835<7, 6, -1> leftMotor;
-
+    // Sensors
     SR04<> ultrasonicSensor;
 
     ITR20001<2> leftInfrared;
     ITR20001<1> middleInfrared;
     ITR20001<0> rightInfrared;
 
-    WServo<10> servo;
-
     WMPU6050<> mpu;
+
+    // Motors
+    WServo<10> servo;
+    DRV8835<8, 5> rightMotor;
+    DRV8835<7, 6, -1> leftMotor;
+
+    // Controllers
+    PID rightMotorPID;
+    PID leftMotorPID;
+
+    State state;
+    
+    void resetPID() noexcept;
+    void move(long delta) noexcept;
 
 public:
     void setup() noexcept;
-    void loop() noexcept;
+    void loop(long delta) noexcept;
 
-    bool forwardUntilObstacle(uint16_t speed);
+    void forward(int16_t speed) noexcept;
+    void turn(int16_t speed, float turnRate) noexcept;
+    void stop() noexcept;
 };
 
 }

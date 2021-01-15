@@ -13,13 +13,6 @@ inline float PID::error(float desired, float current) const noexcept {
     return current - desired;
 }
 
-long PID::delta() {
-    long currentMillis = millis();
-    long delta = currentMillis - lastMillis;
-    lastMillis = currentMillis;
-    return delta;
-}
-
 void PID::addIntegral(float error, unsigned long delta) noexcept {
     if (integralCount < 5) {
         integral[integralCount++] = {error, delta};
@@ -38,9 +31,8 @@ PID::PID(float Kp, float Ki, float Kd) noexcept
 
 }
 
-float PID::calculate(float desired, float current) noexcept {
+float PID::calculate(float desired, float current, long delta) noexcept {
     const auto error = this->error(desired, current);
-    const auto delta = this->delta();
     const auto reducedIntegral = reduceIntegral(integral, integralCount);
 
     const auto p = Kp * error;
@@ -50,20 +42,12 @@ float PID::calculate(float desired, float current) noexcept {
     lastError = error;
     addIntegral(error, delta);
 
-    /*
-    Serial.print("current: "); Serial.print(current);
-    Serial.print("\tdesired: "); Serial.print(desired);
-    Serial.print("\terror: "); Serial.print(error);
-    Serial.print("\tdelta: "); Serial.print(delta);
-    Serial.print("\tintegral error: "); Serial.print(reducedIntegral.error);
-    Serial.print("\tintegral time: "); Serial.print(reducedIntegral.delta);
-    Serial.print("\tp: "); Serial.print(p);
-    Serial.print("\ti: "); Serial.print(i);
-    Serial.print("\td: "); Serial.print(d);
-    Serial.print("\toutput: "); Serial.println(p + i + d);
-    */
-
     return p + i + d;
+}
+
+void PID::reset() noexcept {
+    integralCount = 0;
+    lastError = 0;
 }
 
 static ReducedIntegral reduceIntegral(Integral integral[5], uint8_t count) {

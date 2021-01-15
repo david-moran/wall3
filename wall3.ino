@@ -1,20 +1,36 @@
 #include "robot.h"
 #include "wmpu6050.h"
 
+long lastMillis;
+long timeCounter;
+bool direction = true;
+
 wall3::Robot robot;
-bool obstacle = false;
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Running robot setup");
   robot.setup();
+  robot.turn(50, 1);
+  lastMillis = millis();
 }
 
 void loop() {
-  robot.loop();
+  auto current = millis();
+  auto delta = current - lastMillis;
+  lastMillis = current;
 
-  if(!obstacle && robot.forwardUntilObstacle(50)) {
-    Serial.println("Obstacle found.");
-    obstacle = true;
+  robot.loop(delta);
+
+  timeCounter += delta;
+  if (timeCounter > 3000) {
+    timeCounter = 0;
+    direction = !direction;
+    if (direction) {
+      robot.turn(50, 90);
+    } else {
+      robot.turn(-50, 90);
+    }
   }
+
 }

@@ -6,29 +6,76 @@ namespace wall3
 {
 
 void Robot::setup() noexcept {
+    Serial.println("Initializing robot setup.");
+    state.stateID = StateID::STOPPED;
+
     Serial.println("Initializing servo setup.");
     servo.setup();
+
     Serial.println("Initializing MPU6050 setup.");
     mpu.setup();
+
     Serial.println("Setup completed.");
 }
 
-void Robot::loop() noexcept {
+void Robot::loop(long delta) noexcept {
     mpu.loop();
+    move(delta);
 }
 
-bool Robot::forwardUntilObstacle(uint16_t speed) {
+void Robot::resetPID() noexcept {
+    leftMotorPID.reset();
+    rightMotorPID.reset();
+}
+
+void Robot::move(long delta) noexcept {
     auto gyro = mpu.gyro();
-    // Serial.print("[LEFT] ");
-    const auto correctedLeftSpeed = leftMotorPID.calculate(0.0, gyro);
+    auto leftSpeed = 0;
+    auto rightSpeed = 0;
 
-    // Serial.print("[RIGHT] ");
-    const auto correctedRightSpeed = -rightMotorPID.calculate(0.0, gyro);
+    switch (state.stateID)
+    {
+    case StateID::FORWARD:
+        leftSpeed = state.desired.speed +
+            leftMotorPID.calculate(state.desired.gyro, gyro, delta);
 
-    leftMotor.setSpeed(speed + correctedLeftSpeed);
-    rightMotor.setSpeed(speed + correctedRightSpeed);
+        rightSpeed = state.desired.speed -
+            rightMotorPID.calculate(state.desired.gyro, gyro, delta);
+        break;
+    }
 
-    return false;
+    leftMotor.setSpeed(leftSpeed);
+    rightMotor.setSpeed(rightSpeed);
+
+}
+
+void Robot::forward(int16_t speed) noexcept {
+    state.desired.speed = speed;
+    state.desired.gyro = mpu.gyro();
+    state.stateID = StateID::FORWARD;
+
+    resetPID();
+}
+
+void Robot::turn(int16_t speed, float turningRate) {
+    if (turningRate == 0.0) {
+        forward(speed);
+    } else {
+        state.desired.speed = speed;
+        state.desired.gyro = mpu.gyro();
+        state.desired.turningRate = turningRate;
+        state.stateID = StateID::TURNING;
+    }
+
+    resetPID();
+}
+
+void Robot::stop() noexcept {
+    state.desired.speed = 0;
+    state.desired.gyro = mpu.gyro();
+    state.stateID = StateID::STOPPED;
+
+    resetPID();
 }
 
 }

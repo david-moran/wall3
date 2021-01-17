@@ -1,6 +1,8 @@
 #include "robot.h"
 #include "wmpu6050.h"
 
+#include "float.h"
+
 long lastMillis;
 long timeCounter;
 bool direction = true;
@@ -11,7 +13,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Running robot setup");
   robot.setup();
-  robot.turn(50, 1);
+  robot.turn(50, 1000);
   lastMillis = millis();
 }
 
@@ -27,9 +29,9 @@ void loop() {
     timeCounter = 0;
     direction = !direction;
     if (direction) {
-      robot.turn(50, 90);
+      robot.turn(50, 1000);
     } else {
-      robot.turn(-50, 90);
+      robot.turn(-50, -1000);
     }
   }
 

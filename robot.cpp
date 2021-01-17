@@ -2,6 +2,8 @@
 
 #include <PID_v1.h>
 
+#include <limits.h>
+
 namespace wall3
 {
 
@@ -30,8 +32,8 @@ void Robot::resetPID() noexcept {
 
 void Robot::move(long delta) noexcept {
     auto gyro = mpu.gyro();
-    auto leftSpeed = 0;
-    auto rightSpeed = 0;
+    int16_t leftSpeed = 0;
+    int16_t rightSpeed = 0;
 
     switch (state.stateID)
     {
@@ -42,7 +44,29 @@ void Robot::move(long delta) noexcept {
         rightSpeed = state.desired.speed -
             rightMotorPID.calculate(state.desired.gyro, gyro, delta);
         break;
+    case StateID::TURNING:
+        if (state.desired.turningRate > 0) {
+            leftSpeed = state.desired.speed * state.desired.turningRate;
+            leftSpeed = leftSpeed == 0 ? INT16_MAX : leftSpeed;
+            rightSpeed = state.desired.speed;
+
+            if (leftSpeed > 255) {
+                leftSpeed = 255;
+                rightSpeed /= state.desired.turningRate;
+            }
+        } else if (state.desired.turningRate < 0) {
+            auto turningRate = abs(state.desired.turningRate);
+            rightSpeed = state.desired.speed * turningRate;
+            rightSpeed = rightSpeed == 0 ? INT16_MIN : rightSpeed;
+            leftSpeed = state.desired.speed;
+
+            if (rightSpeed < -255) {
+                rightSpeed = -255;
+                leftSpeed /= turningRate;
+            }
+        }
     }
+
 
     leftMotor.setSpeed(leftSpeed);
     rightMotor.setSpeed(rightSpeed);
@@ -50,7 +74,7 @@ void Robot::move(long delta) noexcept {
 }
 
 void Robot::forward(int16_t speed) noexcept {
-    state.desired.speed = speed;
+    state.desired.speed = speed > 255 ? 255 : speed < -255 ? -255 : speed;;
     state.desired.gyro = mpu.gyro();
     state.stateID = StateID::FORWARD;
 
@@ -58,10 +82,10 @@ void Robot::forward(int16_t speed) noexcept {
 }
 
 void Robot::turn(int16_t speed, float turningRate) {
-    if (turningRate == 0.0) {
+    if (turningRate == 1.0) {
         forward(speed);
     } else {
-        state.desired.speed = speed;
+        state.desired.speed = speed > 255 ? 255 : speed < -255 ? -255 : speed;
         state.desired.gyro = mpu.gyro();
         state.desired.turningRate = turningRate;
         state.stateID = StateID::TURNING;

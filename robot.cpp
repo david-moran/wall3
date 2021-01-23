@@ -21,7 +21,6 @@ void Robot::setup() noexcept {
 }
 
 void Robot::loop(long delta) noexcept {
-    mpu.loop();
     move(delta);
 }
 
@@ -31,7 +30,7 @@ void Robot::resetPID() noexcept {
 }
 
 void Robot::move(long delta) noexcept {
-    auto gyro = mpu.gyro();
+    auto gyro = mpu.gyroZ();
     int16_t leftSpeed = 0;
     int16_t rightSpeed = 0;
 
@@ -75,7 +74,7 @@ void Robot::move(long delta) noexcept {
 
 void Robot::forward(int16_t speed) noexcept {
     state.desired.speed = speed > 255 ? 255 : speed < -255 ? -255 : speed;;
-    state.desired.gyro = mpu.gyro();
+    state.desired.gyro = mpu.gyroZ();
     state.stateID = StateID::FORWARD;
 
     resetPID();
@@ -86,7 +85,7 @@ void Robot::turn(int16_t speed, float turningRate) {
         forward(speed);
     } else {
         state.desired.speed = speed > 255 ? 255 : speed < -255 ? -255 : speed;
-        state.desired.gyro = mpu.gyro();
+        state.desired.gyro = mpu.gyroZ();
         state.desired.turningRate = turningRate;
         state.stateID = StateID::TURNING;
     }
@@ -96,7 +95,7 @@ void Robot::turn(int16_t speed, float turningRate) {
 
 void Robot::stop() noexcept {
     state.desired.speed = 0;
-    state.desired.gyro = mpu.gyro();
+    state.desired.gyro = mpu.gyroZ();
     state.stateID = StateID::STOPPED;
 
     resetPID();

@@ -35,7 +35,7 @@ struct Robot {
     ITR20001<1> middleInfrared;
     ITR20001<0> rightInfrared;
 
-    WMPU6050<> mpu;
+    WMPU6050 mpu;
 
     // Motors
     WServo<10> servo;
